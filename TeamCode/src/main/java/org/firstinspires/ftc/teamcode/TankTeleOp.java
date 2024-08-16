@@ -27,7 +27,9 @@ public class TankTeleOp extends LinearOpMode {
         arm2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         Servo claw = hardwareMap.servo.get("claw");
+        claw.getController().pwmEnable();
         Servo wrist = hardwareMap.servo.get("wrist");
+        wrist.getController().pwmEnable();
 
         IMU imu = hardwareMap.get(IMU.class, "imu");
 
@@ -70,6 +72,8 @@ public class TankTeleOp extends LinearOpMode {
             telemetry.addData("arm1 pos", arm1.getCurrentPosition());
             telemetry.addData("arm1 pos", arm2.getCurrentPosition());
             telemetry.addData("wrist pos", wrist.getPosition());
+            telemetry.addData("wrist pos - Min", wrist.MIN_POSITION);
+            telemetry.addData("wrist pos - Max", wrist.MAX_POSITION);
             telemetry.addData("claw pos", claw.getPosition());
 
 
