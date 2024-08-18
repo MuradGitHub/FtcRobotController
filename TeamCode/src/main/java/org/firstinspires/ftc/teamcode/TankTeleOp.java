@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp
 public class TankTeleOp extends LinearOpMode {
+    double slowModeCoefficent = 1;
+    double arm2Power = 0;
     int target = 0;
     int error1;
     int error2;
@@ -17,7 +19,9 @@ public class TankTeleOp extends LinearOpMode {
 
         DcMotor drive1 = hardwareMap.dcMotor.get("drive_left");
         DcMotor drive2 = hardwareMap.dcMotor.get("drive_right");
-        drive1.setDirection(DcMotorSimple.Direction.REVERSE);
+        drive2.setDirection(DcMotorSimple.Direction.REVERSE);
+        drive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        drive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         DcMotor arm1 = hardwareMap.dcMotor.get("arm_left");
         DcMotor arm2 = hardwareMap.dcMotor.get("arm_right");
@@ -29,9 +33,6 @@ public class TankTeleOp extends LinearOpMode {
         wrist.getController().pwmEnable();
 
         IMU imu = hardwareMap.get(IMU.class, "imu");
-
-        drive1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        drive2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
@@ -51,33 +52,45 @@ public class TankTeleOp extends LinearOpMode {
         arm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         arm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
-
-
+        wrist.setPosition(1);
 
         waitForStart();
 
 
         while (opModeIsActive()){
+            if (gamepad1.left_bumper){
+                slowModeCoefficent = 2;
+            }
+            else{
+                slowModeCoefficent = 1;
+            }
             error1 = target - arm1.getCurrentPosition();
             error2 = target - arm2.getCurrentPosition();
             arm1.setPower(error1 * 0.05);
             arm2.setPower(error2 * 0.05);
-            telemetry.addData("error1",error1);
-            telemetry.addData("error2",error2);
-            telemetry.addData("target",target);
-            telemetry.addData("arm1 pos", arm1.getCurrentPosition());
-            telemetry.addData("arm1 pos", arm2.getCurrentPosition());
-            telemetry.addData("wrist pos", wrist.getPosition());
-            telemetry.addData("wrist pos - Min", wrist.MIN_POSITION);
-            telemetry.addData("wrist pos - Max", wrist.MAX_POSITION);
-            telemetry.addData("claw pos", claw.getPosition());
 
-
-
-
-            // might have to move this outside loop later idk
             if (isStopRequested()) return;
+
+            if(gamepad1.right_stick_x < 0){
+                drive1.setPower(0.5 / slowModeCoefficent);
+                drive2.setPower(-0.5 / slowModeCoefficent);
+            }
+            else if (gamepad1.right_stick_x > 0){
+                drive1.setPower(-0.5 / slowModeCoefficent);
+                drive2.setPower(0.5 / slowModeCoefficent);
+            }
+            else if(-gamepad1.left_stick_y > 0){
+                drive1.setPower(1 / slowModeCoefficent);
+                drive2.setPower(1 / slowModeCoefficent);
+            }
+            else if(-gamepad1.left_stick_y < 0){
+                drive1.setPower(-1 / slowModeCoefficent);
+                drive2.setPower(-1 / slowModeCoefficent);
+            }
+            else{
+                drive1.setPower(0);
+                drive2.setPower(0);
+            }
 
             if (gamepad1.right_trigger > 0.5){
                 claw.setPosition(gamepad1.right_trigger);
@@ -87,49 +100,33 @@ public class TankTeleOp extends LinearOpMode {
                 claw.setPosition(0.4);
             }
 
-            drive1.setPower(gamepad1.left_stick_y);
-            drive2.setPower(gamepad1.left_stick_y);
-            telemetry.addData("drive power", gamepad1.left_stick_y);
-
-            if(gamepad1.right_stick_x < 0){
-                drive1.setPower(1);
-                drive2.setPower(-1);
-            }
-            else if (gamepad1.right_stick_x > 0){
-                drive1.setPower(-1);
-                drive2.setPower(1);
-            }
-            else{
-                drive1.setPower(0);
-                drive2.setPower(0);
-
-            }
-            if(gamepad1.left_bumper){
-                if (target > 0) {
-                    target-=5;
-                }
-
-            }
-            if(gamepad1.right_bumper){
-                if(target < 500){
-                    target+=5;
-                }
-
+            if(gamepad1.x){
+                wrist.setPosition(1);
+                target = 0;
             }
             if(gamepad1.a){
-                wrist.setPosition(0.2);
+                wrist.setPosition(0.40);
+                target = 15;
                 telemetry.addLine("a pressed");
             }
 
             if(gamepad1.y){
                 wrist.setPosition(1);
+                target = 500;
                 telemetry.addLine("y pressed");
             }
 
 
-
-
-
+            telemetry.addData("error1",error1);
+            telemetry.addData("error2",error2);
+            telemetry.addData("target",target);
+            telemetry.addData("arm1 pos", arm1.getCurrentPosition());
+            telemetry.addData("arm1 pos", arm2.getCurrentPosition());
+            telemetry.addData("wrist pos", wrist.getPosition());
+            telemetry.addData("wrist pos - Min", wrist.MIN_POSITION);
+            telemetry.addData("wrist pos - Max", wrist.MAX_POSITION);
+            telemetry.addData("claw pos", claw.getPosition());
+            telemetry.addData("drive power", -gamepad1.left_stick_y);
             telemetry.update();
         }
 
