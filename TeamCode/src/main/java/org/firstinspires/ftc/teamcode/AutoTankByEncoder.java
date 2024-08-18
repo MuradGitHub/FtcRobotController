@@ -37,6 +37,8 @@ public class AutoTankByEncoder extends TankWithClaw {
     @Override
     public void runOpMode() {
 
+        initialize();
+
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 

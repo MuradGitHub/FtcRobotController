@@ -33,20 +33,16 @@ public abstract class TankWithClaw extends LinearOpMode {
     Servo                 wrist      = null;
     Servo                 claw       = null;
 
-    public TankWithClaw() {
-        super();
-        initialize();
-    }
-
     protected void initialize() {
 
-        runtime   = new ElapsedTime();
+        runtime    = new ElapsedTime();
 
         // To drive forward, most robots need the motor on one side to be reversed, because the
         // axles point in opposite directions. When run, this OpMode should start both motors
         // driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.
         // Gear Reduction or 90 Deg drives may require direction flips
+
         driveLeft  = hardwareMap.dcMotor.get("drive_left");
         driveLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         driveLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
