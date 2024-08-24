@@ -79,11 +79,11 @@ public class TankTeleOp extends LinearOpMode {
                 drive1.setPower(-0.5 / slowModeCoefficent);
                 drive2.setPower(0.5 / slowModeCoefficent);
             }
-            else if(-gamepad1.left_stick_y > 0){
+            else if(-gamepad1.left_stick_y > 0.2){
                 drive1.setPower(1 / slowModeCoefficent);
                 drive2.setPower(1 / slowModeCoefficent);
             }
-            else if(-gamepad1.left_stick_y < 0){
+            else if(-gamepad1.left_stick_y < -0.2){
                 drive1.setPower(-1 / slowModeCoefficent);
                 drive2.setPower(-1 / slowModeCoefficent);
             }
@@ -105,8 +105,8 @@ public class TankTeleOp extends LinearOpMode {
                 target = 0;
             }
             if(gamepad1.a){
-                wrist.setPosition(0.40);
-                target = 15;
+                wrist.setPosition(0.4);
+                target = 20;
                 telemetry.addLine("a pressed");
             }
 
